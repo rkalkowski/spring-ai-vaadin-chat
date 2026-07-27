@@ -93,6 +93,15 @@ and then fails every request at runtime:
 
 Same for `top-p` and `top-k`. Steer the model with the system prompt instead.
 
+**4. A similarity threshold is not a portable number.** `similarityThreshold` on the
+document retriever filters by your embedding model's raw score, and those score
+distributions differ wildly between models. A plausible-looking `0.5` with the local
+MiniLM model here filtered out *every* match: asking "how do I configure SSO?"
+retrieved nothing, so the assistant replied "I don't know" — with no error, no warning,
+and a perfectly healthy-looking app. Near-verbatim queries still worked, which is what
+makes it so easy to miss in testing. Start without a threshold, measure your own
+scores, then add one as a tuned value.
+
 ## Streaming: the parts that matter
 
 Three details separate a demo from something you can ship:

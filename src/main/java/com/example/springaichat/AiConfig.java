@@ -39,10 +39,16 @@ class AiConfig {
      */
     @Bean
     ChatClient chatClient(ChatClient.Builder builder, VectorStore vectorStore) {
+        // No similarityThreshold here, deliberately. A threshold is good production
+        // practice — it stops irrelevant chunks being pasted into the prompt — but the
+        // number is NOT portable: it depends entirely on your embedding model's score
+        // distribution. With this local MiniLM model, a plausible-looking 0.5 silently
+        // filtered out every match, so "how do I configure SSO?" retrieved nothing and
+        // the assistant answered "I don't know" while looking perfectly healthy.
+        // If you add one, measure your own scores first and treat it as a tuned value.
         var retriever = VectorStoreDocumentRetriever.builder()
                 .vectorStore(vectorStore)
                 .topK(4)
-                .similarityThreshold(0.5)
                 .build();
 
         return builder
