@@ -9,7 +9,7 @@ production concerns (token cost, cancellation, resilience) that demos usually sk
 Companion code for the article *Spring AI 2.0 in Practice: Adding LLM Features to a
 Java Web App* — TODO: link post on publish.
 
-<!-- TODO: add screenshot of the running chat view here -->
+![The docs assistant answering a question from the bundled Acme ERP documentation](docs/screenshot.png)
 
 ## Verified version matrix
 
@@ -41,6 +41,11 @@ export ANTHROPIC_API_KEY=sk-ant-...
 
 Then open <http://localhost:8080> and ask *"how do I configure SSO?"* — the answer comes
 from the Markdown files in `src/main/resources/docs`, not from the model's training data.
+
+You can tell it's really doing retrieval rather than improvising: the answer cites details
+that exist only in those files — the `sso.exempt = true` break-glass account, the
+`/saml/SSO` ACS endpoint, the 90-second clock-skew limit, and the three troubleshooting
+cases. None of that is public information about any real product.
 
 First run is slow: Vaadin installs frontend tooling and Spring AI downloads a local
 embedding model (~90 MB). Subsequent starts take seconds.
