@@ -18,7 +18,7 @@ Java Web App* — TODO: link post on publish.
 | Spring AI | 2.0.0 |
 | Spring Boot | 4.1.0 |
 | Vaadin | 25.2.3 |
-| Java | 21+ (21 release target, built on JDK 25) |
+| Java | 25+ (latest LTS target, built on JDK 25) |
 
 What was actually run against those versions, on 2026-07-27:
 
@@ -82,6 +82,16 @@ the OpenAI starter and configure it for embeddings only.
 `RetrievalAugmentationAdvisor` (in `spring-ai-rag`) composed with a
 `VectorStoreDocumentRetriever` — see `AiConfig`. Most tutorials you'll find online
 still show the 1.x API and will not compile against 2.0.
+
+**3. Don't set `temperature`.** Current Claude models reject sampling parameters, and
+Spring AI passes them straight through — so a single line of config compiles, starts,
+and then fails every request at runtime:
+
+```
+400 invalid_request_error: `temperature` is deprecated for this model.
+```
+
+Same for `top-p` and `top-k`. Steer the model with the system prompt instead.
 
 ## Streaming: the parts that matter
 

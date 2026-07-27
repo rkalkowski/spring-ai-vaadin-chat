@@ -4,7 +4,7 @@ Acme ERP ships as a single Spring Boot jar plus a PostgreSQL 17 database.
 
 ## Requirements
 
-- Java 21 or newer
+- Java 25 or newer
 - PostgreSQL 17 with the `pgcrypto` extension enabled
 - 2 vCPU / 4 GB RAM minimum per application node
 
