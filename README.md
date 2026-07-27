@@ -105,6 +105,10 @@ cache-read/cache-write tokens, which are billed differently and matter a lot for
 curl localhost:8080/actuator/metrics/ai.tokens
 ```
 
+Note that Micrometer registers a counter the first time it's incremented, so this endpoint
+returns 404 until the app has completed one successful model call. That's expected, not a
+misconfiguration — `curl localhost:8080/actuator/metrics` lists what's registered so far.
+
 ## Going to production
 
 This project is deliberately minimal. Before shipping something like it:
