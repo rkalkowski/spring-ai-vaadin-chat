@@ -1,0 +1,15 @@
+/*
+ * Loaded via @StyleSheet("styles.css") on the Application class.
+ * In a Spring Boot project this file belongs in src/main/resources/META-INF/resources.
+ */
+
+.assistant-view {
+    max-width: 48rem;
+    margin: 0 auto;
+}
+
+/* Give the assistant's streaming answer a subtle surface so it reads as a reply. */
+.assistant-view vaadin-message[theme~="assistant"] {
+    background: var(--lumo-contrast-5pct);
+    border-radius: var(--lumo-border-radius-l);
+}
