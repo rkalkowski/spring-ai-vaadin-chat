@@ -6,6 +6,7 @@ import org.springframework.ai.document.Document;
 import org.springframework.ai.reader.TextReader;
 import org.springframework.ai.transformer.splitter.TokenTextSplitter;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,15 +28,15 @@ import java.util.List;
  * sources you trust — a document containing "ignore your instructions and ..." is a
  * prompt-injection vector.
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 class DocsIngestion {
 
     private static final Logger log = LoggerFactory.getLogger(DocsIngestion.class);
 
     @Bean
     ApplicationRunner ingestDocs(VectorStore vectorStore,
-                                 @org.springframework.beans.factory.annotation.Value("classpath:docs/*.md")
-                                 Resource[] docs) {
+                                 AssistantProperties properties,
+                                 @Value("classpath:docs/*.md") Resource[] docs) {
         return args -> {
             List<Document> documents = Arrays.stream(docs)
                     .map(TextReader::new)
@@ -44,9 +45,9 @@ class DocsIngestion {
 
             // Chunk size is the main RAG tuning knob: too large and retrieval returns
             // mostly irrelevant text (and costs input tokens), too small and answers
-            // lose the surrounding context. ~400 tokens suits reference documentation.
+            // lose the surrounding context.
             List<Document> chunks = TokenTextSplitter.builder()
-                    .withChunkSize(400)
+                    .withChunkSize(properties.chunkSize())
                     .build()
                     .split(documents);
 

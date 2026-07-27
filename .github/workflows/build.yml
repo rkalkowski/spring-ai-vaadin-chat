@@ -1,0 +1,66 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# A newer push to the same branch makes an in-flight run redundant.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: verify
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Must match <java.version> in pom.xml — the project targets release 25, so an
+      # older JDK cannot compile it. Bump both together or the build fails here.
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      # No ANTHROPIC_API_KEY is set: the test suite is deliberately offline so CI
+      # never needs a credential. Tests that would call the model don't exist —
+      # the model call is exercised manually, see README.
+      - name: Verify
+        run: ./mvnw -B -ntp verify
+
+  production-build:
+    # The dev build only runs prepare-frontend. This job proves the frontend
+    # bundle and the executable jar actually build, which is what ships.
+    name: production package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: Package
+        run: ./mvnw -B -ntp -Pproduction package -DskipTests
+
+      - name: Upload jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: spring-ai-vaadin-chat
+          path: target/*.jar
+          retention-days: 7
+          if-no-files-found: error

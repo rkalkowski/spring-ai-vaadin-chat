@@ -1,0 +1,20 @@
+# Normalise line endings so a Windows checkout doesn't produce a diff-only commit.
+* text=auto eol=lf
+
+# The Windows wrapper scripts must keep CRLF or cmd.exe mis-parses them.
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# Never mangle binaries.
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.jar binary
+*.onnx binary
+
+# Keep generated/vendored files out of language stats and diffs.
+mvnw            linguist-vendored
+mvnw.cmd        linguist-vendored
+mvnwDebug       linguist-vendored
+mvnwDebug.cmd   linguist-vendored

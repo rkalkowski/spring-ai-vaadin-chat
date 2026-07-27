@@ -1,5 +1,9 @@
 # Spring AI + Vaadin: a streaming LLM chat feature in pure Java
 
+[![build](https://github.com/rkalkowski/spring-ai-vaadin-chat/actions/workflows/build.yml/badge.svg)](https://github.com/rkalkowski/spring-ai-vaadin-chat/actions/workflows/build.yml)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![Java 25](https://img.shields.io/badge/Java-25-orange.svg)](https://adoptium.net/)
+
 A complete, runnable example of adding an AI assistant to a Java web application:
 a real chat UI, token-by-token streaming, RAG over your own documents, and the
 production concerns (token cost, cancellation, resilience) that demos usually skip.
@@ -50,10 +54,16 @@ cases. None of that is public information about any real product.
 First run is slow: Vaadin installs frontend tooling and Spring AI downloads a local
 embedding model (~90 MB). Subsequent starts take seconds.
 
-To run the tests (no API key needed, no network):
+To run the tests (no API key needed, no network calls, runs in seconds):
 
 ```bash
-./mvnw test
+./mvnw verify
+```
+
+To build the production jar, which also builds the optimised frontend bundle:
+
+```bash
+./mvnw -Pproduction package
 ```
 
 ## How it works
@@ -64,9 +74,22 @@ Five classes, each mapping to one step of the article:
 |---|---|
 | `Application.java` | Boots Spring; `@Push` enables server→browser streaming |
 | `AiConfig.java` | `ChatClient` bean, system prompt, in-memory vector store, RAG advisor |
-| `AiChatService.java` | Streams tokens as a `Flux`, records token usage in Micrometer |
+| `AiChatService.java` | Streams chunks as a cancellable `Flux`, records token usage in Micrometer |
 | `DocsIngestion.java` | Reads → splits → embeds the bundled docs at startup |
 | `AssistantView.java` | The whole UI: `MessageList` + `MessageInput`, ~80 lines of Java |
+| `AssistantProperties.java` | Validated `assistant.*` config — timeout, chunk size, top-K, metric tag |
+
+### Configuration
+
+The four values you actually end up tuning live in `application.properties`, bound to
+a validated record so a bad value fails at startup rather than mid-request:
+
+| Property | Default | What it controls |
+|---|---|---|
+| `assistant.request-timeout` | `60s` | How long to wait for a completion |
+| `assistant.chunk-size` | `400` | Token target when splitting ingested docs |
+| `assistant.top-k` | `4` | How many chunks get retrieved into the prompt |
+| `assistant.feature-name` | `docs-assistant` | `feature` tag on the `ai.tokens` metric |
 
 Request flow:
 

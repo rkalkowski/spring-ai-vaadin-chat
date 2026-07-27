@@ -7,6 +7,7 @@ import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.boot.DefaultApplicationArguments;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
+import java.time.Duration;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,8 +28,10 @@ class DocsIngestionTest {
 
         assertThat(docs).as("sample docs should be on the classpath").isNotEmpty();
 
+        var properties = new AssistantProperties(Duration.ofSeconds(60), 400, 4, "docs-assistant");
+
         new DocsIngestion()
-                .ingestDocs(vectorStore, docs)
+                .ingestDocs(vectorStore, properties, docs)
                 .run(new DefaultApplicationArguments());
 
         @SuppressWarnings("unchecked")

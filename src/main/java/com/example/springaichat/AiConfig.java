@@ -9,7 +9,7 @@ import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 class AiConfig {
 
     private static final String SYSTEM_PROMPT = """
@@ -38,7 +38,10 @@ class AiConfig {
      * (In Spring AI 1.x this was {@code QuestionAnswerAdvisor}, which 2.0 removed.)
      */
     @Bean
-    ChatClient chatClient(ChatClient.Builder builder, VectorStore vectorStore) {
+    ChatClient chatClient(ChatClient.Builder builder,
+                          VectorStore vectorStore,
+                          AssistantProperties properties) {
+
         // No similarityThreshold here, deliberately. A threshold is good production
         // practice — it stops irrelevant chunks being pasted into the prompt — but the
         // number is NOT portable: it depends entirely on your embedding model's score
@@ -48,7 +51,7 @@ class AiConfig {
         // If you add one, measure your own scores first and treat it as a tuned value.
         var retriever = VectorStoreDocumentRetriever.builder()
                 .vectorStore(vectorStore)
-                .topK(4)
+                .topK(properties.topK())
                 .build();
 
         return builder
