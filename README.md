@@ -13,14 +13,24 @@ Java Web App* — TODO: link post on publish.
 
 ## Verified version matrix
 
-Everything here was compiled and tested against these exact versions:
-
 | | Version |
 |---|---|
 | Spring AI | 2.0.0 |
 | Spring Boot | 4.1.0 |
 | Vaadin | 25.2.3 |
-| Java | 21+ (built with 21 release target, tested on JDK 25) |
+| Java | 21+ (21 release target, built on JDK 25) |
+
+What was actually run against those versions, on 2026-07-27:
+
+- `./mvnw test` — compiles clean (no warnings) and the ingestion test passes
+- `./mvnw spring-boot:run` — starts in ~23 s, embeds the bundled docs, serves on :8080
+- Browser check — the chat view renders, Markdown is applied, and submitting a question
+  streams a server-pushed update back into the message list
+- `./mvnw -Pproduction package` — builds the frontend bundle and an executable jar
+
+Not verified: a **successful model response**, which needs a real `ANTHROPIC_API_KEY`.
+Without a key the app still starts and the UI works; the request fails and the view shows
+its error message (which is how the error path above was exercised).
 
 ## Quick start
 
